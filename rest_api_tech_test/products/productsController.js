@@ -28,3 +28,21 @@ export const getByStockNumber = async (req, res) => {
     // Return the product object and successful status 200
     return res.status(200).json({status: "Success", data: product});
 };
+
+// Controller function to add a new product
+export const addNewProduct = async (req, res) => {
+    // Constant for the new product details
+    const newProduct = req.body;
+
+    // Await the completion of the add model function
+    const product = await productModels.addNewProduct(newProduct);
+
+    // Create the response object
+    const response = {
+        status: "Successfully added",
+        data: product
+    }
+
+    // Return the response object with a 201 status
+    return res.status(201).json(response);
+};

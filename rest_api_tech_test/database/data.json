@@ -1,14 +1,14 @@
 [
-    {
-        "stock_number":"98765",
-        "name":"Excel Pro PC",
-        "Description":"Desktop Computer",
-        "Price":"£2999.99"
-    },
-    {
-        "stock_number":"98766",
-        "name":"Legend Pro PC",
-        "Description":"Desktop Computer",
-        "Price":"£3999.99"
-    }
+  {
+    "stock_number": "98765",
+    "name": "Excel Pro PC",
+    "Description": "Desktop Computer",
+    "Price": "£2999.99"
+  },
+  {
+    "stock_number": "98766",
+    "name": "Legend Pro PC",
+    "Description": "Desktop Computer",
+    "Price": "£3999.99"
+  }
 ]

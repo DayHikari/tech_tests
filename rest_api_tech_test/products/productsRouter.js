@@ -15,3 +15,6 @@ productsRoutes.get("/", productControllers.getProducts);
 // Get by stock number
 productsRoutes.get("/:id", productControllers.getByStockNumber);
 
+// Add new product
+productsRoutes.post("/", productControllers.addNewProduct)
+
