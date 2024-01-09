@@ -2,7 +2,7 @@
 import app from "./app.js";
 
 // Port constant using test requirement
-const port = 3000;
+const port = 8080;
 
 // Set the server listening for the port
 app.listen(port, () => {
