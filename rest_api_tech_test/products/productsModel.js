@@ -2,7 +2,20 @@
 import fs from "node:fs/promises";
 
 // Constant for the file path
-const filePath = "./rest_api_tech_test/database/data.json";
+const filePath = "database/data.json";
+
+// Function to get all products
+export const getProducts = async () => {
+    // Fetch the data file array as a JSON
+    const productsJSON = await fs.readFile(filePath);
+
+    // Parse the JSON data array
+    const products = JSON.parse(productsJSON);
+
+    // return the products
+    return products;
+}
+
 
 // Function to get a product by stock number from the JSON data file
 export const getByStockNumber = async (stockNumber) => {

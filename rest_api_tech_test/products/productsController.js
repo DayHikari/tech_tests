@@ -1,5 +1,15 @@
 // // Imports
-import * as productModels from "./products.model.js";
+import * as productModels from "./productsModel.js";
+
+// Controller function to get all products
+export const getProducts = async (req, res) => {
+    // Call the model function to get all products
+    const products = await productModels.getProducts();
+
+    // Return the array of product objects
+    res.status(200).json({status: "success", data: products});
+};
+
 
 // Controller function for the get product by stock number request
 export const getByStockNumber = async (req, res) => {
