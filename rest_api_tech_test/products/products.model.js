@@ -5,7 +5,7 @@ import fs from "node:fs/promises";
 const filePath = "./rest_api_tech_test/database/data.json";
 
 // Function to get a product by stock number from the JSON data file
-const getByID = async (stockNumber) => {
+export const getByStockNumber = async (stockNumber) => {
     // Fetch the data file array as a JSON
     const productsJSON = await fs.readFile(filePath);
 
