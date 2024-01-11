@@ -70,7 +70,7 @@ export const updateProduct = async (stockNumber, updatedProduct) => {
   // Update the target product details
   const newProductDetails = {
     stock_number: updatedProduct.stock_number ?? targetProduct.stock_number,
-    name: updatedProduct.stock_number ?? targetProduct.stock_number,
+    name: updatedProduct.name ?? targetProduct.name,
     Description: updatedProduct.Description ?? targetProduct.Description,
     Price: updatedProduct.Price ?? targetProduct.Price,
   }
@@ -85,7 +85,7 @@ export const updateProduct = async (stockNumber, updatedProduct) => {
   console.log(updatedProductList);
   // Write the new updated product list to the data file
   await fs.writeFile(filePath, JSON.stringify(updatedProductList));
-
+  
   // Return the new product details
   return newProductDetails;
 };

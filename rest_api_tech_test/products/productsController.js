@@ -47,4 +47,37 @@ export const addNewProduct = async (req, res) => {
     return res.status(201).json(response);
 };
 
+// Controller function to update a product
+export const updateProduct = async (req, res) => {
+    // Set constant for stock number
+    const stockNumber = req.params.id;
 
+    // Set constant for new product details
+    const requestDetails = req.body;
+    
+    // Set constant for formatted product object
+    const newProductDetails = {
+        stock_number: requestDetails.stock_number ?? null,
+        name: requestDetails.name ?? null,
+        Description: requestDetails.Description ?? null,
+        Price: requestDetails.Price ?? null
+    }; 
+
+    // Call updated product model function with stockNumber and newProductDetails
+    const updatedProductDetails = await productModels.updateProduct(stockNumber, newProductDetails);
+
+    // Error handling if stock number not found
+    if (!updatedProductDetails) {
+        res.status(404).json("Stock number not found, please confirm stock number");
+    };
+    
+    // Send response if successful
+    res.status(200).json(updatedProductDetails);
+};
+
+// const testObj = {
+//   stock_number: "98765",
+//   name: 'Excel Pro V4 PC',
+//   Description: 'Desktop Computer',
+//   Price: '£9999.99'
+// }

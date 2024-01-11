@@ -18,3 +18,5 @@ productsRoutes.get("/:id", productControllers.getByStockNumber);
 // Add new product
 productsRoutes.post("/", productControllers.addNewProduct)
 
+// Update a product
+productsRoutes.put("/:id", productControllers.updateProduct);
