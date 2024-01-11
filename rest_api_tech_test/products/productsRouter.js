@@ -13,10 +13,10 @@ export const productsRoutes = express.Router();
 productsRoutes.get("/", productControllers.getProducts);
 
 // Get by stock number
-productsRoutes.get("/:id", productControllers.getByStockNumber);
+productsRoutes.get("/:stockNumber", productControllers.getByStockNumber);
 
 // Add new product
 productsRoutes.post("/", productControllers.addNewProduct)
 
 // Update a product
-productsRoutes.put("/:id", productControllers.updateProduct);
+productsRoutes.patch("/:stockNumber", productControllers.updateProduct);

@@ -1,99 +1,142 @@
 // // Imports
-import fs from "node:fs/promises";
+// import fs from "node:fs/promises";
+// Import mongodb
+import { MongoClient } from "mongodb";
 
-// Constant for the file path
-const filePath = "database/data.json";
+// set constant for connection uri
+const uri =
+  "mongodb+srv://davidmason:Password123@firstmongodb.exiwpxq.mongodb.net/?retryWrites=true&w=majority";
+
+// Variable for the database connection
+let dbConnection;
+
+// Function to create database connection. Exported for server listening.
+export const connectToDb = (cb) => {
+  MongoClient.connect(uri).then((client) => {
+    dbConnection = client.db();
+    return cb();
+  });
+};
+
+// Function to remove MongoDB id when returning object
+const objectFixer = (products) => {
+  // Declare the empty variable
+  let productList;
+
+  // Check if the products is an array
+  if (Array.isArray(products)) {
+    // Map through products to remove the id number
+    productList = products.map((obj) => {
+      // Create the new obj with no id
+      const newObj = {
+        stock_number: obj.stock_number,
+        name: obj.name,
+        Description: obj.Description,
+        Price: obj.Price,
+      };
+
+      // Return the new obj to set to variable
+      return newObj;
+    });
+  } else {
+    productList = {
+      stock_number: products.stock_number,
+      name: products.name,
+      Description: products.Description,
+      Price: products.Price,
+    };
+  }
+
+  // Return product list
+  return productList;
+};
 
 // Function to get all products
 export const getProducts = async () => {
-  // Fetch the data file array as a JSON
-  const productsJSON = await fs.readFile(filePath);
+  // Declare variable to store product information
+  const products = [];
 
-  // Parse the JSON data array
-  const products = JSON.parse(productsJSON);
-  console.log(products);
-  // return the products
-  return products;
+  // Send Get request to Mongo database to find all products and push each to products array
+  await dbConnection
+    .collection("product_db")
+    .find()
+    .forEach((product) => products.push(product));
+
+  // Error handling
+  if (products.length === 0) {
+    return null;
+  }
+
+  // Map through products to remove the id number
+  const productList = objectFixer(products);
+
+  // Return the product list
+  return productList;
 };
 
-// Function to get a product by stock number from the JSON data file
+// Function to get a product by stock number
 export const getByStockNumber = async (stockNumber) => {
-  // Fetch the data file array as a JSON
-  const productsJSON = await fs.readFile(filePath);
+  // Declare variable to store product info
+  let mongoProduct;
 
-  // Parse the JSON data array
-  const products = JSON.parse(productsJSON);
+  // Send get request while finding the stock number
+  await dbConnection
+    .collection("product_db")
+    .findOne({ stock_number: stockNumber })
+    .then((product) => {
+      mongoProduct = product;
+    })
+    .catch((err) => {
+      return null;
+    });
 
-  // Filter the array to find matching product
-  const matchedProduct = products.filter(
-    (obj) => obj.stock_number === stockNumber
-  );
+  // Correct the object format
+  const product = objectFixer(mongoProduct);
 
-  // Return either the product object or null
-  return matchedProduct.length > 0 ? matchedProduct[0] : null;
+  // Return the corrected product
+  return product;
 };
 
 // Function to add a new product
 export const addNewProduct = async (newProduct) => {
-  // Fetch the data file array as a JSON
-  const productsJSON = await fs.readFile(filePath);
+  // Confirm acknowledged
+  let confirmation;
+  //Send the post request
+  await dbConnection
+    .collection("product_db")
+    .insertOne(newProduct)
+    .then((result) => {
+      confirmation = result.acknowledged;
+    });
 
-  // Parse the JSON data array
-  const products = JSON.parse(productsJSON);
+  // Remove newProduct id after post request
+  const addedProduct = confirmation ? objectFixer(newProduct) : null;
 
-  // Add the new product to the products data
-  const updatedProducts = [...products, newProduct];
-
-  // Write the new array to the data file
-  await fs.writeFile(filePath, JSON.stringify(updatedProducts));
-
-  // Return the new product information
-  return newProduct;
+  // Return product details if confirmation true or return null
+  return addedProduct;
 };
 
 // Function to update a product
-export const updateProduct = async (stockNumber, updatedProduct) => {
-  // Fetch the data file array as a JSON
-  const productsJSON = await fs.readFile(filePath);
+export const updateProduct = async (stockNumber, requestDetails) => {
+  // Confirmation of request
+  let confirmation;
 
-  // Parse the JSON data array
-  const products = JSON.parse(productsJSON);
+  //Send the post request
+  await dbConnection
+    .collection("product_db")
+    .updateOne({ stock_number: stockNumber }, { $set: requestDetails })
+    .then((result) => {
+      confirmation = result.acknowledged;
+    });
 
-  // Constant for target product to be updated
-  const targetProduct = products.filter(productObj => productObj.stock_number === stockNumber);
+  // Request new product details
+  const mongoProduct =
+    confirmation &&
+    (await getByStockNumber(requestDetails.stock_number ?? stockNumber));
 
-  // Error handling if not product with matching stock number found
-  if (targetProduct.length === 0) {
-    return null;
-  };
+  // Remove newProduct id after post request
+  const updatedProduct = mongoProduct ? objectFixer(mongoProduct) : null;
 
-  // Update the target product details
-  const newProductDetails = {
-    stock_number: updatedProduct.stock_number ?? targetProduct.stock_number,
-    name: updatedProduct.name ?? targetProduct.name,
-    Description: updatedProduct.Description ?? targetProduct.Description,
-    Price: updatedProduct.Price ?? targetProduct.Price,
-  }
-
-  // Create the new product list object and set any new values or default to old value
-  const updatedProductList = products.map((productObj) =>
-    productObj.stock_number !== stockNumber
-      ? productObj
-      : newProductDetails
-  );
-
-  console.log(updatedProductList);
-  // Write the new updated product list to the data file
-  await fs.writeFile(filePath, JSON.stringify(updatedProductList));
-  
-  // Return the new product details
-  return newProductDetails;
+  // Return product details if confirmation true or return null
+  return updatedProduct;
 };
-// const testObj = {
-//   stock_number: "98765",
-//   name: 'Excel Pro PC',
-//   Description: 'Desktop Computer',
-//   Price: '£2999.99'
-// }
-// getProducts();
-// updateProduct("98765", testObj)

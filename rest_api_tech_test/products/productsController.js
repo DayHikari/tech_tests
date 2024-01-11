@@ -4,7 +4,12 @@ import * as productModels from "./productsModel.js";
 // Controller function to get all products
 export const getProducts = async (req, res) => {
     // Call the model function to get all products
-    const products = await productModels.getProducts();
+    const products = await productModels.getProducts() ?? "error returning products";
+
+    // Error handling
+    if (!products) {
+        res.status(500).json({status: "failed", data: "Unable to retrieve data from database"})
+    }
 
     // Return the array of product objects
     res.status(200).json({status: "success", data: products});
@@ -14,7 +19,7 @@ export const getProducts = async (req, res) => {
 // Controller function for the get product by stock number request
 export const getByStockNumber = async (req, res) => {
     // Set the stock number to a constant
-    const stockNumber =  req.params.id;
+    const stockNumber =  req.params.stockNumber;
 
     // Call model function to get 
     const product = await productModels.getByStockNumber(stockNumber);
@@ -50,21 +55,22 @@ export const addNewProduct = async (req, res) => {
 // Controller function to update a product
 export const updateProduct = async (req, res) => {
     // Set constant for stock number
-    const stockNumber = req.params.id;
+    const stockNumber = req.params.stockNumber;
 
     // Set constant for new product details
     const requestDetails = req.body;
     
-    // Set constant for formatted product object
-    const newProductDetails = {
-        stock_number: requestDetails.stock_number ?? null,
-        name: requestDetails.name ?? null,
-        Description: requestDetails.Description ?? null,
-        Price: requestDetails.Price ?? null
-    }; 
+    // No longer needed for Mongodb
+    // // Set constant for formatted product object
+    // // const newProductDetails = {
+    // //     stock_number: requestDetails.stock_number ?? null,
+    // //     name: requestDetails.name ?? null,
+    // //     Description: requestDetails.Description ?? null,
+    // //     Price: requestDetails.Price ?? null
+    // // }; 
 
     // Call updated product model function with stockNumber and newProductDetails
-    const updatedProductDetails = await productModels.updateProduct(stockNumber, newProductDetails);
+    const updatedProductDetails = await productModels.updateProduct(stockNumber, requestDetails);
 
     // Error handling if stock number not found
     if (!updatedProductDetails) {
@@ -74,10 +80,3 @@ export const updateProduct = async (req, res) => {
     // Send response if successful
     res.status(200).json(updatedProductDetails);
 };
-
-// const testObj = {
-//   stock_number: "98765",
-//   name: 'Excel Pro V4 PC',
-//   Description: 'Desktop Computer',
-//   Price: '£9999.99'
-// }
