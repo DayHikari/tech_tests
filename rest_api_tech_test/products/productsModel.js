@@ -49,3 +49,7 @@ export const addNewProduct = async (newProduct) => {
   return newProduct;
 };
 
+// Function to update a product
+export const updateProduct = async (updatedProduct) => {
+  //
+}

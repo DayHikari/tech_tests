@@ -1,6 +1,7 @@
 // // Imports
 // Import child to run the curl command
 import * as child from "child_process";
+import { stderr, stdout } from "process";
 // Import util to promisify the child.exec function
 import * as util from "util";
 
@@ -35,18 +36,36 @@ const getProductByStockNumberWithCURL = async () => {
 };
 
 const newProductObj = {
-  "stock_number":"12345",
-  "name":"Pro Batteriers",
-  "Description":"Batteries",
-  "Price":"£1.99"
+  stock_number:"12345",
+  name:"Pro Batteriers",
+  Description:"Batteries",
+  Price:"£1.99"
 }
 
 // Function to add a new product to the database
 const addNewProduct = async (productObj) => {
+  const jsonObj = JSON.stringify(productObj)
   // Send the curl post request with the product object
-  const { error, stdout, stderr } = await exec(
-    `curl -s -X POST -H "Content-Type: application/json" -d ${newProductObj} ${apiEndpoint}`
-  );
+  // const { error, stdout, stderr } = await exec(
+  //   `curl -s -X POST ${apiEndpoint}
+  //   -d '${jsonObj}'
+  //   -H "Content-Type: application/json"`
+  // );
+  await exec(
+    `curl -X POST -H "Content-Type: application/json" \\
+    -d '${jsonObj}' \\
+    ${apiEndpoint}`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error: ${error}`);
+        return;
+      }
+      if (stderr) {
+        console.error(`stderr: ${stderr}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+    }
+  )
 
   // Error handling
   if (error) {
@@ -65,5 +84,5 @@ const addNewProduct = async (productObj) => {
   console.log("Add response: ", response)
 }
 
-getProductByStockNumberWithCURL();
-addNewProduct(newProductObj);
+await getProductByStockNumberWithCURL();
+await addNewProduct(newProductObj);
