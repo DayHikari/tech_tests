@@ -46,3 +46,5 @@ export const addNewProduct = async (req, res) => {
     // Return the response object with a 201 status
     return res.status(201).json(response);
 };
+
+
