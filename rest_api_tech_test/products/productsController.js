@@ -8,11 +8,11 @@ export const getProducts = async (req, res) => {
 
     // Error handling
     if (!products) {
-        res.status(500).json({status: "failed", data: "Unable to retrieve data from database"})
+        res.status(500).json({status: "Failed", data: "Unable to retrieve data from database"})
     }
 
     // Return the array of product objects
-    res.status(200).json({status: "success", data: products});
+    res.status(200).json({status: "Success", data: products});
 };
 
 
@@ -27,7 +27,7 @@ export const getByStockNumber = async (req, res) => {
     // Error handling if stock number not found
     if(!product) {
         // Return a 404 not found with as Fail and a message regarding issue
-        return res.status(404).json({status: "Fail", data: "Stock number not found, please confirm the stock number"});
+        return res.status(404).json({status: "Failed", data: "Stock number not found, please confirm the stock number"});
     };
 
     // Return the product object and successful status 200
@@ -44,7 +44,7 @@ export const addNewProduct = async (req, res) => {
 
     // Create the response object
     const response = {
-        status: "Successfully added",
+        status: "Success",
         data: product
     }
 
@@ -74,9 +74,9 @@ export const updateProduct = async (req, res) => {
 
     // Error handling if stock number not found
     if (!updatedProductDetails) {
-        res.status(404).json("Stock number not found, please confirm stock number");
+        res.status(404).json({status: "Failed", data:"Stock number not found, please confirm stock number"});
     };
     
     // Send response if successful
-    res.status(200).json(updatedProductDetails);
+    res.status(200).json({status: "Success", data: updatedProductDetails});
 };
