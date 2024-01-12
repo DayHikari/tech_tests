@@ -8,12 +8,14 @@ const uri =
   "mongodb+srv://davidmason:Password123@firstmongodb.exiwpxq.mongodb.net/?retryWrites=true&w=majority";
 
 // Variable for the database connection
-let dbConnection;
+export let dbConnection;
+export let mongoClient;
 
 // Function to create database connection. Exported for server listening.
 export const connectToDb = (cb) => {
   MongoClient.connect(uri).then((client) => {
     dbConnection = client.db();
+    mongoClient = client;
     return cb();
   });
 };

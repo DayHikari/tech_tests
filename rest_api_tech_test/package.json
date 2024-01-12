@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "reset-db": "node database/reset_mongodb.js"
   },
   "keywords": [],
   "author": "",
