@@ -1,34 +1,40 @@
-import { test, expect, beforeEach, afterEach } from "vitest";
-import request from "supertest";
-import resetMongo from "../database/resetFunction";
-import app from "../app.js";
-import {
-  connectToDb,
-  getProducts,
-  mongoClient,
-  dbConnection
-} from "../products/productsModel.js";
-import { MongoClient } from "mongodb";
+import resetMongo from "../database/resetFunction.js";
+import { connection, connectToDb, getProducts } from "./productsModel.js";
 
-const uri =
-  "mongodb+srv://davidmason:Password123@firstmongodb.exiwpxq.mongodb.net/?retryWrites=true&w=majority";
+describe("insert", () => {
+  // let connection;
+  // let dbConnection;
+
+  beforeAll(async () => {
+    await resetMongo();
+
+    await connectToDb();
+  });
+
+  afterAll(async () => {
+    await connection.close();
+  });
+
+  it("should GET the database data", async () => {
+    const response = await getProducts();
+    const expectedResult = [
+      {
+        stock_number: '98765',
+        name: 'Excel Pro PC',
+        Description: 'Desktop Computer',
+        Price: '£2999.99'
+      },
+      {
+        stock_number: '98766',
+        name: 'Legend Pro PC',
+        Description: 'Desktop Computer',
+        Price: '£3999.99'
+      }
+    ];
+
+    expect(response).toEqual(expectedResult);
+  });
 
 
-test("Test test", () => {});
-
-test("Model GET request", async () => {
-  await resetMongo();
-
-  let products= []
-  expect(async () => {
-    const client = new MongoClient(uri);
-    try{
-      const db = client.db();
-      await db.command({ping: 1})
-      console.log(await getProducts())
-    } finally {
-      await client.close()
-    }
-  }).not.toThrow()
-
+  
 });

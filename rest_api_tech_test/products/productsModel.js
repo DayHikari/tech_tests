@@ -8,16 +8,13 @@ const uri =
   "mongodb+srv://davidmason:Password123@firstmongodb.exiwpxq.mongodb.net/?retryWrites=true&w=majority";
 
 // Variable for the database connection
-export let dbConnection;
-export let mongoClient;
+export let db;
+export let connection;
 
 // Function to create database connection. Exported for server listening.
-export const connectToDb = (cb) => {
-  MongoClient.connect(uri).then((client) => {
-    dbConnection = client.db();
-    mongoClient = client;
-    return cb();
-  });
+export const connectToDb = async () => {
+    connection = await MongoClient.connect(uri)
+    db = connection.db();
 };
 
 // Function to remove MongoDB id when returning object
@@ -59,7 +56,7 @@ export const getProducts = async () => {
   const products = [];
 
   // Send Get request to Mongo database to find all products and push each to products array
-  await dbConnection
+  await db
     .collection("product_db")
     .find()
     .forEach((product) => products.push(product));
@@ -82,7 +79,7 @@ export const getByStockNumber = async (stockNumber) => {
   let mongoProduct;
 
   // Send get request while finding the stock number
-  await dbConnection
+  await db
     .collection("product_db")
     .findOne({ stock_number: stockNumber })
     .then((product) => {
@@ -104,7 +101,7 @@ export const addNewProduct = async (newProduct) => {
   // Confirm acknowledged
   let confirmation;
   //Send the post request
-  await dbConnection
+  await db
     .collection("product_db")
     .insertOne(newProduct)
     .then((result) => {
@@ -124,7 +121,7 @@ export const updateProduct = async (stockNumber, requestDetails) => {
   let confirmation;
 
   //Send the post request
-  await dbConnection
+  await db
     .collection("product_db")
     .updateOne({ stock_number: stockNumber }, { $set: requestDetails })
     .then((result) => {
