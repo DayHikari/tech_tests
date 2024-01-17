@@ -7,6 +7,6 @@ const port = 8080;
 
 
 app.listen(port, () => {
-  connectToDb();
+  connectToDb("main");
   console.log(`Server is listening to http://localhost:${port}`);
 });

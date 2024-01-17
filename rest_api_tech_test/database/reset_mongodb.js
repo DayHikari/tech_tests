@@ -3,7 +3,7 @@
 import resetMongo from "./resetFunction.js";
 
 try {
-  await resetMongo();
+  await resetMongo("main");
 } catch (error) {
   console.error("Database reset failed: ", error);
 };

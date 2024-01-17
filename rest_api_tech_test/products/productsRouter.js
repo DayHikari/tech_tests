@@ -19,4 +19,4 @@ productsRoutes.get("/:stockNumber", productControllers.getByStockNumber);
 productsRoutes.post("/", productControllers.addNewProduct)
 
 // Update a product
-productsRoutes.patch("/:stockNumber", productControllers.updateProduct);
+productsRoutes.put("/:stockNumber", productControllers.updateProduct);

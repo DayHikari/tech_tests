@@ -79,7 +79,6 @@
 //       : newProductDetails
 //   );
 
-//   console.log(updatedProductList);
 //   // Write the new updated product list to the data file
 //   await fs.writeFile(filePath, JSON.stringify(updatedProductList));
   

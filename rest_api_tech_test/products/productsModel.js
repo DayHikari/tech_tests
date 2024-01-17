@@ -1,20 +1,18 @@
 // // Imports
-// import fs from "node:fs/promises";
 // Import mongodb
 import { MongoClient } from "mongodb";
 
 // set constant for connection uri
-const uri =
-  "mongodb+srv://davidmason:Password123@firstmongodb.exiwpxq.mongodb.net/?retryWrites=true&w=majority";
+const uri = process.env.DB_URI
 
 // Variable for the database connection
 export let db;
 export let connection;
 
 // Function to create database connection. Exported for server listening.
-export const connectToDb = async () => {
+export const connectToDb = async (database) => {
     connection = await MongoClient.connect(uri)
-    db = connection.db();
+    db = connection.db(database);
 };
 
 // Function to remove MongoDB id when returning object
@@ -86,11 +84,11 @@ export const getByStockNumber = async (stockNumber) => {
       mongoProduct = product;
     })
     .catch((err) => {
-      return null;
+      mongoProduct = null;
     });
 
   // Correct the object format
-  const product = objectFixer(mongoProduct);
+  const product = mongoProduct ? objectFixer(mongoProduct) : null;
 
   // Return the corrected product
   return product;

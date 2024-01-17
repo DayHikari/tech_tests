@@ -9,10 +9,10 @@ describe("Model unit testing", () => {
   // Before starting tests: Reset the database and then connect to the database
   beforeEach(async () => {
     // Reset the database
-    await resetMongo();
+    await resetMongo("test");
 
     // Connect to the database
-    await connectToDb();
+    await connectToDb("test");
   });
 
   // After all tests: Disconnect from the database

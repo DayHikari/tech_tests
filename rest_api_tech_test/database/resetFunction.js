@@ -3,9 +3,9 @@
 import { connectToDb, db, connection } from "../products/productsModel.js";
 
 // Function to reset Mongodb
-const resetMongo = async () => {
+const resetMongo = async (database) => {
   // Connect to Mongodb
-  await connectToDb();
+  await connectToDb(database)
 
   // Try, catch, finally statement
   try {

@@ -13,7 +13,7 @@ app.use(express.json());
 // Health check to confirm server and app working
 app.get("/", (req, res) => {
     res.json({
-        status: "success",
+        status: "Success",
         data: "The route works!"
     });
 });

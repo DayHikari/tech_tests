@@ -13,10 +13,10 @@ describe("API Testing", () => {
   // Before starting tests: Reset the database and then connect to the database
   beforeEach(async () => {
     // Reset the database
-    await resetMongo();
+    await resetMongo("test");
 
     // Connect to the database
-    await connectToDb();
+    await connectToDb("test");
   });
 
   // After all tests: Disconnect from the database
@@ -116,8 +116,8 @@ describe("API Testing", () => {
     };
 
     // Send the new info with the associated stock number and set the return to a variable
-    const response = await request(app) /* Send request to app */
-      .patch(`/products/${stockNumber}`) /* Send to GET route */
+    await request(app) /* Send request to app */
+      .put(`/products/${stockNumber}`) /* Send to PUT route */
       .send(JSON.stringify(newInfo)) /* Send the new product info*/
       .set("Accept", "application/json") /* Send the new product info*/
       .expect("Content-Type", /json/) /* Expect the response to be json */
