@@ -26,10 +26,10 @@ export const getProducts = async (req, res) => {
       status: "Failed",
       data: "Unable to retrieve data from database",
     });
+  } else {
+    // Return the array of product objects
+    res.status(200).json({ status: "Success", data: products });
   }
-
-  // Return the array of product objects
-  res.status(200).json({ status: "Success", data: products });
 };
 
 // Controller function for the get product by stock number request
@@ -47,21 +47,21 @@ export const getByStockNumber = async (req, res) => {
       status: "Failed",
       data: "Stock number not found, please confirm the stock number",
     });
+  } else {
+    // Return the product object and successful status 200
+    return res.status(200).json({ status: "Success", data: product });
   }
-
-  // Return the product object and successful status 200
-  return res.status(200).json({ status: "Success", data: product });
 };
 
 // Controller function to add a new product
 export const addNewProduct = async (req, res) => {
-    // Enforce Application/JSON
-    if (req.headers["content-type"] !== "application/json") {
-      return res.status(400).json({
-        status: "Failed",
-        data: "Please submit data as JSON. Data will be returned as JSON.",
-      });
-    };
+  // Enforce Application/JSON
+  if (req.headers["content-type"] !== "application/json") {
+    return res.status(400).json({
+      status: "Failed",
+      data: "Please submit data as JSON. Data will be returned as JSON.",
+    });
+  }
 
   // Constant for the new product details
   const newProduct = req.body;
@@ -75,7 +75,7 @@ export const addNewProduct = async (req, res) => {
       status: "Failed",
       data: "Missing product parameters. Ensure stock_number, name, Description and Price are submitted as written here.",
     });
-  };
+  }
 
   // Await the completion of the add model function
   const product = await productModels.addNewProduct(newProduct);
@@ -92,13 +92,13 @@ export const addNewProduct = async (req, res) => {
 
 // Controller function to update a product
 export const updateProduct = async (req, res) => {
-    // Enforce Application/JSON
-   if (req.headers["content-type"] !== "application/json") {
-     return res.status(400).json({
-       status: "Failed",
-       data: "Please submit data as JSON. Data will be returned as JSON.",
-     });
-   };
+  // Enforce Application/JSON
+  if (req.headers["content-type"] !== "application/json") {
+    return res.status(400).json({
+      status: "Failed",
+      data: "Please submit data as JSON. Data will be returned as JSON.",
+    });
+  }
 
   // Set constant for stock number
   const stockNumber = req.params.stockNumber;
@@ -114,12 +114,12 @@ export const updateProduct = async (req, res) => {
 
   // Error handling if stock number not found
   if (!updatedProductDetails) {
-    res.status(404).json({
+    return res.status(404).json({
       status: "Failed",
       data: "Stock number not found, please confirm stock number",
     });
-  }
-
+  };
+  
   // Send response if successful
   res.status(200).json({ status: "Success", data: updatedProductDetails });
 };

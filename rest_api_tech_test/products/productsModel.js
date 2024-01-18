@@ -62,8 +62,8 @@ export const getProducts = async () => {
   // Error handling
   if (products.length === 0) {
     return null;
-  }
-
+  };
+  
   // Map through products to remove the id number
   const productList = objectFixer(products);
 
