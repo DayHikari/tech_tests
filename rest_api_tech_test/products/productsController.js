@@ -1,6 +1,44 @@
 // // Imports
 import * as productModels from "./productsModel.js";
 
+// Add functionality to confirm that the stock number only contains alpha-numeric values and exactly 10 of them
+// confirm both individually for the stock number used in params and in body
+// make it a separate function
+// confirm the length
+// split, confirm array length === 10
+// confirm only alphanumeric
+// Regex 0-9 and a-z A-Z, check if there is shorthand for alphanumeric
+// Return true or false, parent function then makes decision using this value (400 error)
+
+const checkForAlphaNumericStockNumber = (stockNumber) => {
+  // // Not needed as later step checks if 10
+  // if (stockNumber.length !== 10) {
+  //   return false;
+  // }
+
+  const regexp = /\w/g;
+
+  const regArray = stockNumber.matchAll(regexp);
+  let count = 0;
+  for (const match of regArray) {
+    count++
+  }
+  console.log(count)
+  if (count !== 10) {
+    return false;
+  } else {
+    return true;
+  }
+};
+console.log(checkForAlphaNumericStockNumber("0123456789"));
+
+// Answer discussed with Andy
+const checkStockNumber = (stockNumber) => {
+  return /\w{10}/g.test(stockNumber)
+}
+console.log(checkStockNumber("0123456789"))
+console.log(checkStockNumber("012345689"))
+
 const checkObjectFormatCorrect = (obj) => {
   const missingParameter = !obj.stock_number
     ? true
@@ -118,8 +156,8 @@ export const updateProduct = async (req, res) => {
       status: "Failed",
       data: "Stock number not found, please confirm stock number",
     });
-  };
-  
+  }
+
   // Send response if successful
   res.status(200).json({ status: "Success", data: updatedProductDetails });
 };
