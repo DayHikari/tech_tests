@@ -3,7 +3,7 @@
 import { MongoClient } from "mongodb";
 
 // set constant for connection uri
-const uri = process.env.DB_URI
+const uri = process.env.DB_URI;
 
 // Variable for the database connection
 export let db;
@@ -11,8 +11,8 @@ export let connection;
 
 // Function to create database connection. Exported for server listening.
 export const connectToDb = async (database) => {
-    connection = await MongoClient.connect(uri)
-    db = connection.db(database);
+  connection = await MongoClient.connect(uri);
+  db = connection.db(database);
 };
 
 // Function to remove MongoDB id when returning object
@@ -62,8 +62,8 @@ export const getProducts = async () => {
   // Error handling
   if (products.length === 0) {
     return null;
-  };
-  
+  }
+
   // Map through products to remove the id number
   const productList = objectFixer(products);
 
@@ -101,39 +101,26 @@ export const addNewProduct = async (newProduct) => {
   //Send the post request
   await db
     .collection("product_db")
-    .insertOne(newProduct)
+    .insertOne(newProduct, {writeConcern: {forceServerObjectId: true}})
     .then((result) => {
       confirmation = result.acknowledged;
     });
 
-  // Remove newProduct id after post request
-  const addedProduct = confirmation ? objectFixer(newProduct) : null;
-
   // Return product details if confirmation true or return null
-  return addedProduct;
+  return confirmation ? newProduct : null;;
 };
 
 // Function to update a product
-export const updateProduct = async (stockNumber, requestDetails) => {
-  // Confirmation of request
-  let confirmation;
-
-  //Send the post request
-  await db
+export const updateProduct = async (stockNumber, requestDetails, addIfNew) => {
+  //Send the post request and set to variable
+  const response = await db
     .collection("product_db")
-    .updateOne({ stock_number: stockNumber }, { $set: requestDetails })
-    .then((result) => {
-      confirmation = result.acknowledged;
-    });
-
-  // Request new product details
-  const mongoProduct =
-    confirmation &&
-    (await getByStockNumber(requestDetails.stock_number ?? stockNumber));
-
-  // Remove newProduct id after post request
-  const updatedProduct = mongoProduct ? objectFixer(mongoProduct) : null;
+    .findOneAndUpdate(
+      { stock_number: stockNumber },
+      { $set: requestDetails },
+      { upsert:addIfNew, projection: {_id: 0}, returnDocument : "after" }
+    );
 
   // Return product details if confirmation true or return null
-  return updatedProduct;
+  return response;
 };

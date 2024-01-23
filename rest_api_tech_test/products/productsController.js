@@ -30,14 +30,14 @@ const checkForAlphaNumericStockNumber = (stockNumber) => {
     return true;
   }
 };
-console.log(checkForAlphaNumericStockNumber("0123456789"));
+// console.log(checkForAlphaNumericStockNumber("0123456789"));
 
 // Answer discussed with Andy
 const checkStockNumber = (stockNumber) => {
   return /\w{10}/g.test(stockNumber)
 }
-console.log(checkStockNumber("0123456789"))
-console.log(checkStockNumber("012345689"))
+// console.log(checkStockNumber("0123456789"))
+// console.log(checkStockNumber("012345689"))
 
 const checkObjectFormatCorrect = (obj) => {
   const missingParameter = !obj.stock_number
@@ -144,17 +144,20 @@ export const updateProduct = async (req, res) => {
   // Set constant for new product details
   const requestDetails = req.body;
 
+  const missingParameter = checkObjectFormatCorrect(requestDetails);
+  console.log("missing parameter: ", missingParameter)
   // Call updated product model function with stockNumber and newProductDetails
   const updatedProductDetails = await productModels.updateProduct(
     stockNumber,
-    requestDetails
+    requestDetails,
+    !missingParameter
   );
 
   // Error handling if stock number not found
   if (!updatedProductDetails) {
     return res.status(404).json({
       status: "Failed",
-      data: "Stock number not found, please confirm stock number",
+      data: "Stock number not found and item could not be added due to missing parameters. Product should contain 'stock_number', 'name', 'Description' and 'Price' to be added.",
     });
   }
 
