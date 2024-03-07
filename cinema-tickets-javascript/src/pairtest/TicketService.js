@@ -19,20 +19,25 @@ export default class TicketService {
     this.#noOfTickets[ticketType] += value;
   };
 
-  #totalSeatsToAllocate = 0;
+  #totalSeatsToAllocate;
   #getTotalSeatsToAllocate() {
     return this.#totalSeatsToAllocate;
   };
   #setTotalSeatsToAllocate(value) {
-    this.#totalSeatsToAllocate += value;
+    // Cannot be more than 20
+    if (typeof value !== "number") {
+      throw new TypeError("Seats to allocate arguement must be a number.")
+    }
+
+    this.#totalSeatsToAllocate = value;
   };
 
-  #totalAmountToPay = 0;
+  #totalAmountToPay;
   #getTotalAmountToPay() {
     return this.#totalAmountToPay;
   };
   #setTotalAmountToPay(value) {
-    this.#totalAmountToPay += value;
+    this.#totalAmountToPay = value;
   };
 
   #ticketRequestionInformation;
@@ -62,13 +67,13 @@ export default class TicketService {
     this.#seatReservationService.reserveSeat(accountId, this.#getTotalSeatsToAllocate());
   };
 
-  #confirmAccountIdFormat(accountId) {
+  #validateAccountIdFormat(accountId) {
     if (accountId < 1 || !Number.isInteger(accountId)) {
       throw new TypeError("Account number is incorrect");
     };
   };
 
-  #confirmArguementFormat(ticketTypeRequest) {
+  #validateArguementFormat(ticketTypeRequest) {
     if (
       typeof ticketTypeRequest !== "object" ||
       Array.isArray(ticketTypeRequest) ||
@@ -79,14 +84,17 @@ export default class TicketService {
   };
 
   #ticketDetailChecker(accountId, ticketTypeRequests) {
-    this.#confirmAccountIdFormat(accountId);
+    this.#validateAccountIdFormat(accountId);
 
     for (let ticketTypeRequest of ticketTypeRequests) {
-      this.#confirmArguementFormat(ticketTypeRequest);
+      this.#validateArguementFormat(ticketTypeRequest);
 
-      this.#setTicketRequestInformation(new TicketTypeRequest(ticketTypeRequest.type, ticketTypeRequest.quantity));
+      // this.#setTicketRequestInformation(new TicketTypeRequest(ticketTypeRequest.type, ticketTypeRequest.quantity));
+      // this.#setNoOfTickets(this.#getTicketRequestionType(), this.#getTicketRequestionQuantity());
 
-      this.#setNoOfTickets(this.#getTicketRequestionType(), this.#getTicketRequestionQuantity());
+      // Instantiating the class
+      const currentTicket = new TicketTypeRequest(ticketTypeRequest.type, ticketTypeRequest.quantity);
+      this.#setNoOfTickets(currentTicket.getTicketType(), currentTicket.getNoOfTickets());
     };
 
     if (this.#getNoOfTicketType("ADULT") <= 0) {
@@ -97,8 +105,8 @@ export default class TicketService {
 
     this.#setTotalSeatsToAllocate(this.#getNoOfTicketType("ADULT") + this.#getNoOfTicketType("CHILD"));
 
-    this.#setTotalAmountToPay(this.#getNoOfTicketType("ADULT") * 20);
-    this.#setTotalAmountToPay(this.#getNoOfTicketType("CHILD") * 10);
+    this.#setTotalAmountToPay((this.#getNoOfTicketType("ADULT") * 20) + (this.#getNoOfTicketType("CHILD") * 10));
+    // this.#setTotalAmountToPay(this.#getNoOfTicketType("CHILD") * 10);
 
   };
 
