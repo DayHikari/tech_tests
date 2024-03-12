@@ -16,6 +16,10 @@ export default class TicketService {
     return this.#noOfTickets[ticketType];
   };
   #setNoOfTickets(ticketType, value) {
+    if (this.#getNoOfTickets() + value > 20) {
+      throw new InvalidPurchaseException("Cannot purchase more than 20 tickets.")
+    };
+
     this.#noOfTickets[ticketType] += value;
   };
 
@@ -40,17 +44,6 @@ export default class TicketService {
     this.#totalAmountToPay = value;
   };
 
-  #ticketRequestionInformation;
-  #getTicketRequestionType() {
-    return this.#ticketRequestionInformation.getTicketType();
-  };
-  #getTicketRequestionQuantity() {
-    return this.#ticketRequestionInformation.getNoOfTickets();
-  };
-  #setTicketRequestInformation(ticketTypeFunction) {
-    this.#ticketRequestionInformation = ticketTypeFunction;
-  };
-
   #ticketPaymentService;
   #setTicketPaymentService(ticketPaymentClass) {
     this.#ticketPaymentService = ticketPaymentClass;
@@ -69,7 +62,7 @@ export default class TicketService {
 
   #validateAccountIdFormat(accountId) {
     if (accountId < 1 || !Number.isInteger(accountId)) {
-      throw new TypeError("Account number is incorrect");
+      throw new InvalidPurchaseException("Account number is incorrect");
     };
   };
 
@@ -89,9 +82,6 @@ export default class TicketService {
     for (let ticketTypeRequest of ticketTypeRequests) {
       this.#validateArguementFormat(ticketTypeRequest);
 
-      // this.#setTicketRequestInformation(new TicketTypeRequest(ticketTypeRequest.type, ticketTypeRequest.quantity));
-      // this.#setNoOfTickets(this.#getTicketRequestionType(), this.#getTicketRequestionQuantity());
-
       // Instantiating the class
       const currentTicket = new TicketTypeRequest(ticketTypeRequest.type, ticketTypeRequest.quantity);
       this.#setNoOfTickets(currentTicket.getTicketType(), currentTicket.getNoOfTickets());
@@ -100,14 +90,12 @@ export default class TicketService {
     if (this.#getNoOfTicketType("ADULT") <= 0) {
       throw new InvalidPurchaseException("CHILD and INFANT tickets cannot be purchased without an accompanying ADULT.");
     } else if (this.#getNoOfTicketType("ADULT") * 2 < this.#getNoOfTicketType("INFANT")) {
-      throw new InvalidPurchaseException("No more than 2 INFANTs per ADULT.")
+      throw new InvalidPurchaseException("No more than 2 INFANTs per ADULT.");
     };
 
     this.#setTotalSeatsToAllocate(this.#getNoOfTicketType("ADULT") + this.#getNoOfTicketType("CHILD"));
 
     this.#setTotalAmountToPay((this.#getNoOfTicketType("ADULT") * 20) + (this.#getNoOfTicketType("CHILD") * 10));
-    // this.#setTotalAmountToPay(this.#getNoOfTicketType("CHILD") * 10);
-
   };
 
   #paymentService(accountId) {
@@ -134,13 +122,5 @@ export default class TicketService {
     this.#paymentService(accountId);
     this.#reservationService(accountId);
     return this.#summary();
-  }
-}
-
-const test = new TicketService();
-// console.log(test.purchaseTickets(35641, ["ADULT", 5, "CHILD", 3]));
-console.log(test.purchaseTickets(
-  35641,
-  { type: "ADULT", quantity: 5 },
-  { type: "CHILD", quantity: 3 }
-));
+  };
+};
