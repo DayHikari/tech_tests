@@ -1,14 +1,10 @@
-import TicketTypeRequest from "./lib/TicketTypeRequest.js";
 import InvalidPurchaseException from "./lib/InvalidPurchaseException.js";
 import TicketPaymentService from "../thirdparty/paymentgateway/TicketPaymentService.js";
 import SeatReservationService from "../thirdparty/seatbooking/SeatReservationService.js";
+import TicketTypeRequest from "./lib/TicketTypeRequest.js";
 
 export default class TicketService {
-  #noOfTickets = {
-    "ADULT": 0,
-    "CHILD": 0,
-    "INFANT": 0,
-  };
+  #noOfTickets;
   #getNoOfTickets() {
     return Object.values(this.#noOfTickets).reduce((a,b) => a + b, 0);
   };
@@ -22,42 +18,32 @@ export default class TicketService {
 
     this.#noOfTickets[ticketType] += value;
   };
-
-  #totalSeatsToAllocate;
-  #getTotalSeatsToAllocate() {
-    return this.#totalSeatsToAllocate;
-  };
-  #setTotalSeatsToAllocate(value) {
-    // Cannot be more than 20
-    if (typeof value !== "number") {
-      throw new TypeError("Seats to allocate arguement must be a number.")
-    }
-
-    this.#totalSeatsToAllocate = value;
-  };
-
-  #totalAmountToPay;
-  #getTotalAmountToPay() {
-    return this.#totalAmountToPay;
-  };
-  #setTotalAmountToPay(value) {
-    this.#totalAmountToPay = value;
+  #resetNoOfTickets() {
+    this.#noOfTickets = {
+      "ADULT": 0,
+      "CHILD": 0,
+      "INFANT": 0,
+    };
   };
 
   #ticketPaymentService;
   #setTicketPaymentService(ticketPaymentClass) {
     this.#ticketPaymentService = ticketPaymentClass;
   };
-  #makePayment(accountId) {
-    this.#ticketPaymentService.makePayment(accountId, this.#getTotalAmountToPay());
+  #makePayment(accountId, amountToPay) {
+    this.#ticketPaymentService.makePayment(accountId, amountToPay);
   };
-
+  
   #seatReservationService;
   #setSeatReservationService(seatReservationClass) {
     this.#seatReservationService = seatReservationClass;
   };
-  #makeReservation(accountId) {
-    this.#seatReservationService.reserveSeat(accountId, this.#getTotalSeatsToAllocate());
+  #makeReservation(accountId, noOfTickets) {
+    this.#seatReservationService.reserveSeat(accountId, noOfTickets);
+  };
+
+  #resetVariableValues() {
+    this.#resetNoOfTickets();
   };
 
   #validateAccountIdFormat(accountId) {
@@ -66,25 +52,13 @@ export default class TicketService {
     };
   };
 
-  #validateArguementFormat(ticketTypeRequest) {
-    if (
-      typeof ticketTypeRequest !== "object" ||
-      Array.isArray(ticketTypeRequest) ||
-      ticketTypeRequest === null
-    ) {
-      throw new InvalidPurchaseException(`ticketTypeRequests must be objects`);
-    };
-  };
-
   #ticketDetailChecker(accountId, ticketTypeRequests) {
     this.#validateAccountIdFormat(accountId);
+    
+    this.#resetVariableValues();
 
     for (let ticketTypeRequest of ticketTypeRequests) {
-      this.#validateArguementFormat(ticketTypeRequest);
-
-      // Instantiating the class
-      const currentTicket = new TicketTypeRequest(ticketTypeRequest.type, ticketTypeRequest.quantity);
-      this.#setNoOfTickets(currentTicket.getTicketType(), currentTicket.getNoOfTickets());
+      this.#setNoOfTickets(ticketTypeRequest.getTicketType(), ticketTypeRequest.getNoOfTickets());
     };
 
     if (this.#getNoOfTicketType("ADULT") <= 0) {
@@ -92,28 +66,24 @@ export default class TicketService {
     } else if (this.#getNoOfTicketType("ADULT") * 2 < this.#getNoOfTicketType("INFANT")) {
       throw new InvalidPurchaseException("No more than 2 INFANTs per ADULT.");
     };
-
-    this.#setTotalSeatsToAllocate(this.#getNoOfTicketType("ADULT") + this.#getNoOfTicketType("CHILD"));
-
-    this.#setTotalAmountToPay((this.#getNoOfTicketType("ADULT") * 20) + (this.#getNoOfTicketType("CHILD") * 10));
   };
 
   #paymentService(accountId) {
     this.#setTicketPaymentService(new TicketPaymentService());
-    this.#makePayment(accountId);
+    this.#makePayment(accountId, (this.#getNoOfTicketType("ADULT") * 20) + (this.#getNoOfTicketType("CHILD") * 10));
   };
 
   #reservationService(accountId) {
     this.#setSeatReservationService(new SeatReservationService());
-    this.#makeReservation(accountId);
+    this.#makeReservation(accountId, this.#getNoOfTicketType("ADULT") + this.#getNoOfTicketType("CHILD"));
   };
 
   #summary() {
     return {
       success: true,
       totalTickets: this.#getNoOfTickets(),
-      totalCharged: this.#getTotalAmountToPay(),
-      totalSeats: this.#getTotalSeatsToAllocate()
+      totalCharged: (this.#getNoOfTicketType("ADULT") * 20) + (this.#getNoOfTicketType("CHILD") * 10),
+      totalSeats: this.#getNoOfTicketType("ADULT") + this.#getNoOfTicketType("CHILD")
     }
   }
 
